@@ -3,7 +3,7 @@ from os import getpid
 from time import sleep
 from random import random
 
-MAX_WORKERS = 5
+MAX_WORKERS = 10
 
 
 class TestingMp(object):
