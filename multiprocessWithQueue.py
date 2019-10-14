@@ -1,20 +1,28 @@
-from multiprocessing import Pool, Queue
+from multiprocessing import Pool, Queue, get_logger, log_to_stderr, cpu_count
 from os import getpid
 from time import sleep
-from random import random
 
-MAX_WORKERS = 10
+from random import random
+import logging
+
+MAX_WORKERS = cpu_count() * 2
 
 
 class TestingMp(object):
+    logger = get_logger()
+    logger.setLevel(logging.DEBUG)
+
     def __init__(self):
         """
         Initiates a queue, a pool and a temporary buffer, used only
         when the queue is full.
         """
+        print("cpu_count : ", cpu_count())
+
         self.q = Queue(5000)
         self.pool = Pool(processes=MAX_WORKERS, initializer=self.worker_main, )
         self.temp_buffer = []
+        # self.set_logging()
 
     def add_to_queue(self, msg):
         """
@@ -35,11 +43,11 @@ class TestingMp(object):
         """
         This function writes some messages to the queue.
         """
-        for i in range(1000):
+        for i in range(100):
             self.add_to_queue("item for loop %d" % i)
             # Not really needed, just to show that some elements can be added
             # to the queue whenever you want!
-            sleep(0.1)
+            sleep(0.125)
 
     def worker_main(self):
         """
@@ -52,6 +60,7 @@ class TestingMp(object):
             # If queue is empty, wait indefinitly until an element get in the queue.
             item = self.q.get(block=True, timeout=None)
             print("{0} retrieved: {1}".format(getpid(), item))
+
             # simulate some random length operations
             sleep(1)
 
